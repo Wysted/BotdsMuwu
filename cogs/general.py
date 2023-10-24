@@ -14,6 +14,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
+from datetime import datetime
 
 
 class General(commands.Cog, name="general"):
@@ -144,7 +145,8 @@ class General(commands.Cog, name="general"):
         embed.add_field(
             name="Text/Voice Channels", value=f"{len(context.guild.channels)}"
         )
-        embed.add_field(name=f"Roles ({len(context.guild.roles)})", value=roles)
+        embed.add_field(
+            name=f"Roles ({len(context.guild.roles)})", value=roles)
         embed.set_footer(text=f"Created at: {context.guild.created_at}")
         await context.send(embed=embed)
 
@@ -248,36 +250,76 @@ class General(commands.Cog, name="general"):
         await context.send(embed=embed)
 
     @commands.hybrid_command(
-        name="bitcoin",
-        description="Get the current price of bitcoin.",
+        name="eventos",
+        description="Eventos del server MUWU",
     )
-    async def bitcoin(self, context: Context) -> None:
+    @app_commands.describe()
+    async def events(self, context: Context) -> None:
         """
-        Get the current price of bitcoin.
+        Ask any question to the bot.
 
         :param context: The hybrid command context.
+        :param question: The question that should be asked by the user.
         """
-        # This will prevent your bot from stopping everything when doing a web request - see: https://discordpy.readthedocs.io/en/stable/faq.html#how-do-i-make-a-web-request
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://api.coindesk.com/v1/bpi/currentprice/BTC.json"
-            ) as request:
-                if request.status == 200:
-                    data = await request.json(
-                        content_type="application/javascript"
-                    )  # For some reason the returned content is of type JavaScript
-                    embed = discord.Embed(
-                        title="Bitcoin price",
-                        description=f"The current price is {data['bpi']['USD']['rate']} :dollar:",
-                        color=0xBEBEFE,
+
+        hora_actual = datetime.now()
+        hora_formateada = hora_actual.strftime("%Y-%m-%d %H:%M:%S")
+        embed = discord.Embed(
+            title="**Los eventos son los siguientes:**",
+            description=f"Lista de eventos",
+            color=0xBEBEFE,
+        )
+        events = {
+            "Devil Square": ["9:30", "18:30"],
+            "Chaos Castle": ["12:15", "18:15", "21:15"],
+            "Red Dragon": ["12:15", "20:15"],
+            "Blood Castle": ["12:25", "22:25"],
+            "Moss Merchant": ["12:30", "20:30"],
+            "Medusa": [],
+            "Golden Invasion": [],
+            "Core Magriffi": ["19:15"],
+            "Loren Deep": ["20:00"],
+            "Kundun": ["22:30"],
+
+
+        }
+        for event, times in events.items():
+            if times:  # solo añadir el campo si hay horarios
+                for time in times:
+                    falta = calcular_falta(time)
+                    embed.add_field(
+                        name=event,
+                        value=f"{time} - Falta: {falta}",
+                        inline=False
                     )
-                else:
-                    embed = discord.Embed(
-                        title="Error!",
-                        description="There is something wrong with the API, please try again later",
-                        color=0xE02B2B,
-                    )
-                await context.send(embed=embed)
+
+        embed.set_footer(text=f"Hora servidor : {hora_formateada}")
+        await context.send(embed=embed)
+
+
+def calcular_falta(hora_evento_str):
+    # Obtener la hora y minutos del evento
+    hora_evento, minuto_evento = map(int, hora_evento_str.split(':'))
+
+    # Obtener la fecha y hora actual
+    ahora = datetime.now()
+
+    # Crear un datetime para el evento hoy
+    evento_hoy = ahora.replace(
+        hour=hora_evento, minute=minuto_evento, second=0, microsecond=0)
+
+    # Si el evento ya pasó hoy, sumarle un día para obtener el evento del próximo día
+    if evento_hoy <= ahora:
+        evento_hoy += datetime.timedelta(days=1)
+
+    # Calcular la diferencia
+    diferencia = evento_hoy - ahora
+
+    # Obtener horas y minutos
+    horas, remainder = divmod(diferencia.seconds, 3600)
+    minutos = remainder // 60
+
+    return f"{horas}h {minutos}m"
 
 
 async def setup(bot) -> None:

@@ -68,8 +68,9 @@ It is recommended to use slash commands and therefore not use prefix commands.
 
 If you want to use prefix commands, make sure to also enable the intent below in the Discord developer portal.
 """
-# intents.message_content = True
-
+intents.message_content = True
+intents.members = True
+intents.presences = True
 # Setup both of the loggers
 
 
@@ -111,7 +112,8 @@ logger.setLevel(logging.INFO)
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(LoggingFormatter())
 # File handler
-file_handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+file_handler = logging.FileHandler(
+    filename="discord.log", encoding="utf-8", mode="w")
 file_handler_formatter = logging.Formatter(
     "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
 )
@@ -172,7 +174,7 @@ class DiscordBot(commands.Bot):
         """
         Setup the game status task of the bot.
         """
-        statuses = ["with you!", "with Krypton!", "with humans!"]
+        statuses = ["Al farming", "Chaos castle", "MU :D"]
         await self.change_presence(activity=discord.Game(random.choice(statuses)))
 
     @status_task.before_loop
