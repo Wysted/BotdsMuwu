@@ -14,7 +14,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
+
+tz = pytz.timezone("America/Santiago")
 
 
 class General(commands.Cog, name="general"):
@@ -262,7 +265,7 @@ class General(commands.Cog, name="general"):
         :param question: The question that should be asked by the user.
         """
 
-        hora_actual = datetime.now()
+        hora_actual = datetime.now(tz)
         hora_formateada = hora_actual.strftime("%Y-%m-%d %H:%M:%S")
         embed = discord.Embed(
             title="**Los eventos son los siguientes:**",
@@ -270,56 +273,52 @@ class General(commands.Cog, name="general"):
             color=0xBEBEFE,
         )
         events = {
-            "Devil Square": ["9:30", "18:30"],
-            "Chaos Castle": ["12:15", "18:15", "21:15"],
-            "Red Dragon": ["12:15", "20:15"],
-            "Blood Castle": ["12:25", "22:25"],
-            "Moss Merchant": ["12:30", "20:30"],
-            "Medusa": [],
-            "Golden Invasion": [],
-            "Core Magriffi": ["19:15"],
-            "Loren Deep": ["20:00"],
-            "Kundun": ["22:30"],
-
-
+            "Devil Square": (["9:30", "18:30"], "https://www.guiamuonline.com/quest-mu-online/devil-square"),
+            "Chaos Castle": (["12:15", "18:15", "21:15"], "https://www.guiamuonline.com/quest-mu-online/506-chaos-castle-reloaded"),
+            "Red Dragon": (["12:15", "20:15"], "https://muonlinefanz.com/guide/hunting/red-dragon/"),
+            "Blood Castle": (["12:25", "22:25"], "https://www.guiamuonline.com/quest-mu-online/blood-castle"),
+            "Moss Merchant": (["12:30", "20:30"], "https://guiamuonline.com/npc-sistema/moss"),
+            "Medusa": (["16:30"], "https://www.guiamuonline.com/boss/medusa"),
+            "Golden Invasion": (["16:30"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/golden-invasion"),
+            "Core Magriffi": (["19:15"], "https://www.guiamuonline.com/eventos-mu-online/evento-boss/core-magriffy"),
+            "Loren Deep": (["20:00"], "https://www.guiamuonline.com/eventos-mu-online/loren-deep"),
+            "Kundun": (["22:30"], "https://www.guiamuonline.com/eventos-mu-online/evento-boss/kalima-kundun"),
+            "Viejo pascuero invasion": (["00:00"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/santas-village")
         }
-        for event, times in events.items():
+        for event, (times, link) in events.items():
             if times:  # solo añadir el campo si hay horarios
+                # Unir todos los horarios con una coma
+                text = " - ".join(times)
+                closest_time = None
                 for time in times:
-                    falta = calcular_falta(time)
-                    embed.add_field(
-                        name=event,
-                        value=f"{time} - Falta: {falta}",
-                        inline=False
-                    )
+                    event_time_str = f"{hora_actual.strftime('%Y-%m-%d')} {time}"
+                    event_time = datetime.strptime(
+                        event_time_str, '%Y-%m-%d %H:%M')
+                    # Asegurar que el evento tenga la zona horaria
+                    event_time = tz.localize(event_time)
+
+                    # Ajustar al día siguiente si el evento ya pasó hoy
+                    if event_time < hora_actual:
+                        event_time += timedelta(days=1)
+
+                    if closest_time is None or (event_time - hora_actual) < (closest_time - hora_actual):
+                        closest_time = event_time
+
+                # Formatear la hora más cercana y añadir al embed
+                closest_time_str = closest_time.strftime("%H:%M")
+                # Calcular el tiempo restante y formatearlo
+                remaining_time = closest_time - hora_actual
+                hours, remainder = divmod(remaining_time.total_seconds(), 3600)
+                minutes, _ = divmod(remainder, 60)
+                remaining_time_str = f"{int(hours)}h {int(minutes)}m"
+                embed.add_field(
+                    name=f"{event}",
+                    value=f"📅 {text} \n\n  `El evento empezara en {remaining_time_str}` [🤓]({link})",
+                    inline=False
+                )
 
         embed.set_footer(text=f"Hora servidor : {hora_formateada}")
         await context.send(embed=embed)
-
-
-def calcular_falta(hora_evento_str):
-    # Obtener la hora y minutos del evento
-    hora_evento, minuto_evento = map(int, hora_evento_str.split(':'))
-
-    # Obtener la fecha y hora actual
-    ahora = datetime.now()
-
-    # Crear un datetime para el evento hoy
-    evento_hoy = ahora.replace(
-        hour=hora_evento, minute=minuto_evento, second=0, microsecond=0)
-
-    # Si el evento ya pasó hoy, sumarle un día para obtener el evento del próximo día
-    if evento_hoy <= ahora:
-        evento_hoy += datetime.timedelta(days=1)
-
-    # Calcular la diferencia
-    diferencia = evento_hoy - ahora
-
-    # Obtener horas y minutos
-    horas, remainder = divmod(diferencia.seconds, 3600)
-    minutos = remainder // 60
-
-    return f"{horas}h {minutos}m"
 
 
 async def setup(bot) -> None:
