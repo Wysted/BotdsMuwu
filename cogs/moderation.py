@@ -18,6 +18,18 @@ from discord.ext.commands import Context
 class Moderation(commands.Cog, name="moderation"):
     def __init__(self, bot) -> None:
         self.bot = bot
+        self.roles = {
+            "Devil Square": ("👿", 1166848413250355431),
+            "Chaos Castle": ("🏰", 1166848360469233724),
+            "Red Dragon": ("🐉", 1166848613587095632),
+            "Blood Castle": ("🩸", 1166848668872212571),
+            "Moss Merchant": ("🛒", 1166848707891830824),
+            "Medusa": ("🐍", 1166848761583128766),
+            "Golden Invasion": ("🥇", 1166848796211294398),
+            "Core Magriffi": ("🌐", 1166848819464507522),
+            "Loren Deep": ("🌊", 1166848840821903401),
+            "Kundun": ("👑", 1166848931515338762),
+            "Viejo pascuero invasion": ("🎅", 1166848992282427412)}
 
     @commands.hybrid_command(
         name="kick",
@@ -369,6 +381,62 @@ class Moderation(commands.Cog, name="moderation"):
         f = discord.File(log_file)
         await context.send(file=f)
         os.remove(log_file)
+
+    @commands.hybrid_command(
+        name="roles",
+        description="Para dar roles",
+    )
+    @commands.has_permissions(manage_messages=True)
+    @app_commands.describe()
+    async def role_embed(self, context: Context) -> None:
+        embed = discord.Embed(
+            title="**Selecciona tu rol**",
+            description=f"Roles para que te avise sobre los eventos"
+        )
+
+        # Construyendo la lista de roles
+        roles_list = '\n'.join(f"{icon} {rol}" for rol,
+                               (icon, role_id) in self.roles.items())
+
+        embed.add_field(
+            name="Roles:",
+            value=roles_list,
+            inline=False
+        )
+
+        message = await context.send(embed=embed)
+        for icon, role_id in self.roles.values():
+            await message.add_reaction(icon)
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        if user.bot:
+            return  # Ignore bot reactions
+
+        # invertir el diccionario
+        roles_icons = {v[0]: v[1]
+                       for k, v in self.roles.items()}  # Corrección aquí
+        # Solo necesitas el role_id aquí
+        role_id = roles_icons.get(str(reaction.emoji))
+        if role_id is not None:
+            role = discord.utils.get(user.guild.roles, id=role_id)
+            if role:
+                await user.add_roles(role)
+
+    @commands.Cog.listener()
+    async def on_reaction_remove(self, reaction, user):
+        if user.bot:
+            return  # Ignore bot reactions
+
+        # invertir el diccionario
+        roles_icons = {v[0]: v[1]
+                       for k, v in self.roles.items()}  # Corrección aquí
+        # Solo necesitas el role_id aquí
+        role_id = roles_icons.get(str(reaction.emoji))
+        if role_id is not None:
+            role = discord.utils.get(user.guild.roles, id=role_id)
+            if role:
+                await user.remove_roles(role)
 
 
 async def setup(bot) -> None:
