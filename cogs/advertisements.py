@@ -41,7 +41,6 @@ class Advertisements(commands.Cog):
 
     def cog_unload(self):
         self.check_events.cancel()
-        self.clear_sent_notifications.cancel()  # Añade esto
 
     @tasks.loop(minutes=0.5)
     async def check_events(self):
@@ -60,11 +59,12 @@ class Advertisements(commands.Cog):
                 elif event_time < now:
                     event_time += timedelta(days=1)
 
-            # Ahora puedes comparar event_time con now porque ambos son offset-aware
-            if event_time < now:
-
                 # Si event_time es menor que now, entonces el evento ya ocurrió hoy, así que lo ignoramos
                 if event_time < now:
+                    event_time += timedelta(days=1)
+
+            # Ahora puedes comparar event_time con now porque ambos son offset-aware
+                # Si event_time es menor que now, entonces el evento ya ocurrió hoy, así que lo ignoramos
                     print(
                         f"El evento {event} programado para las {event_time.strftime('%H:%M:%S')} ya ocurrió hoy.")
                     continue
@@ -110,16 +110,18 @@ class Advertisements(commands.Cog):
                     else:
                         print(f"Canal con ID {self.channel_id} no encontrado")
 
-    @tasks.loop(hours=24)  # Añade esto
+    @tasks.loop(hours=24)
     async def clear_sent_notifications(self):
         self.sent_notifications.clear()
 
     @commands.Cog.listener()
     async def on_ready(self):
-        if not self.check_events.is_running():
-            self.check_events.start()
-        if not self.clear_sent_notifications.is_running():  # Añade esto
-            self.clear_sent_notifications.start()
+        print("Bot is ready. Starting scheduled tasks.")
+        self.check_events.start()
+        self.clear_sent_notifications.start()
+
+async def setup(bot) -> None:
+    await bot.add_cog(Advertisements(bot))
 
 
 async def setup(bot) -> None:

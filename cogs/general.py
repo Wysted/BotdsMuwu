@@ -273,17 +273,16 @@ class General(commands.Cog, name="general"):
             color=0xBEBEFE,
         )
         events = {
-            "Devil Square": (["9:30", "18:30"], "https://www.guiamuonline.com/quest-mu-online/devil-square"),
-            "Chaos Castle": (["12:15", "18:15", "21:15"], "https://www.guiamuonline.com/quest-mu-online/506-chaos-castle-reloaded"),
-            "Red Dragon": (["12:15", "20:15"], "https://muonlinefanz.com/guide/hunting/red-dragon/"),
-            "Blood Castle": (["12:25", "22:25"], "https://www.guiamuonline.com/quest-mu-online/blood-castle"),
-            "Moss Merchant": (["12:30", "20:30"], "https://guiamuonline.com/npc-sistema/moss"),
-            "Medusa": (["16:30"], "https://www.guiamuonline.com/boss/medusa"),
-            "Golden Invasion": (["16:30"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/golden-invasion"),
-            "Core Magriffi": (["19:15"], "https://www.guiamuonline.com/eventos-mu-online/evento-boss/core-magriffy"),
-            "Loren Deep": (["20:00"], "https://www.guiamuonline.com/eventos-mu-online/loren-deep"),
-            "Kundun": (["22:30"], "https://www.guiamuonline.com/eventos-mu-online/evento-boss/kalima-kundun"),
-            "Viejo pascuero invasion": (["00:00"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/santas-village")
+            "Devil Square": (["00:20", "00:50", "01:20", "01:50", "02:20", "02:50", "03:20", "03:50", "04:20", "04:50", "05:20", "05:50", "06:20", "06:50", "07:20", "07:50", "08:20", "08:50", "09:20", "09:50", "10:20", "10:50", "11:20", "11:50", "12:20", "12:50", "13:20", "13:50", "14:20", "14:50", "15:20", "15:50", "16:20", "16:50", "17:20", "17:50", "18:20", "18:50", "19:20", "19:50", "20:20", "20:50", "21:20", "21:50", "22:20", "22:50", "23:20", "23:50"], "https://www.guiamuonline.com/quest-mu-online/devil-square"),
+            "Chaos Castle": (["01:00", "03:00", "05:00", "07:00", "09:00", "11:00", "13:00", "15:00", "17:00", "19:00", "21:00", "23:00"], "https://www.guiamuonline.com/quest-mu-online/506-chaos-castle-reloaded"),
+            "Blood Castle": (["00:10", "00:40", "01:10", "01:40", "02:10", "02:40", "03:10", "03:40", "04:10", "04:40", "05:10", "05:40", "06:10", "06:40", "07:10", "07:40", "08:10", "08:40", "09:10", "09:40", "10:10", "10:40", "11:10", "11:40", "12:10", "12:40", "13:10", "13:40", "14:10", "14:40", "15:10", "15:40", "16:10", "16:40", "17:10", "17:40", "18:10", "18:40", "19:10", "19:40", "20:10", "20:40", "21:10", "21:40", "22:10", "22:40", "23:10", "23:40"], "https://www.guiamuonline.com/quest-mu-online/blood-castle"),
+            "Red Dragon": (["23:10"], "https://muonlinefanz.com/guide/hunting/red-dragon/"),
+            "Tigers": (["00:25", "01:25", "02:25", "03:25", "04:25", "05:25", "06:25", "07:25", "08:25", "09:25", "10:25", "11:25", "12:25", "13:25", "14:25", "15:25", "16:25", "17:25", "18:25", "19:25", "20:25", "21:25", "22:25", "23:25"], "#"),
+            "Golden goblins": (["00:10", "01:10", "02:10", "03:10", "04:10", "05:10", "06:10", "07:10", "08:10", "09:10", "10:10", "11:10", "12:10", "13:10", "14:10", "15:10", "16:10", "17:10", "18:10", "19:10", "20:10", "21:10", "22:10", "23:10"], "#"),
+            "Golden Invasion": (["12:00","22:00"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/golden-invasion"),
+            "Ice Queen": (["00:01","04:01","08:01","12:01","16:01","20:01"], "#"),
+            "Balrog": (["00:00" ,"08:00","16:00"], "#"),
+            "Hero Mutant": (["12:00","23:50"], "#"),
         }
         for event, (times, link) in events.items():
             if times:  # solo añadir el campo si hay horarios
