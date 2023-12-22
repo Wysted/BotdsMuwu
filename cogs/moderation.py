@@ -21,15 +21,14 @@ class Moderation(commands.Cog, name="moderation"):
         self.roles = {
             "Devil Square": ("👿", 1166848413250355431),
             "Chaos Castle": ("🏰", 1166848360469233724),
-            "Red Dragon": ("🐉", 1166848613587095632),
             "Blood Castle": ("🩸", 1166848668872212571),
-            "Moss Merchant": ("🛒", 1166848707891830824),
-            "Medusa": ("🐍", 1166848761583128766),
+            "Red Dragon": ("🐉", 1166848613587095632),
+            "Tigers": ("🐅", 1166848761583128766),
+            "Golden Goblins": ("👺", 1166848707891830824),
             "Golden Invasion": ("🥇", 1166848796211294398),
-            "Core Magriffi": ("🌐", 1166848819464507522),
-            "Loren Deep": ("🌊", 1166848840821903401),
-            "Kundun": ("👑", 1166848931515338762),
-            "Viejo pascuero invasion": ("🎅", 1166848992282427412)}
+            "Ice Queen": ("🌊", 1166848819464507522),
+            "Balrog": ("👑", 1166848840821903401),
+            "Hero Mutant": ("🤖", 1166848992282427412)}
 
     @commands.hybrid_command(
         name="kick",

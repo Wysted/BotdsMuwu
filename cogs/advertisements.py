@@ -13,30 +13,30 @@ class Advertisements(commands.Cog):
         self.sent_notifications = set()  # Añade esto
 
         self.events = {
-            "Devil Square": (["9:30", "18:30"], "https://www.guiamuonline.com/quest-mu-online/devil-square"),
-            "Chaos Castle": (["12:15", "18:15", "21:15"], "https://www.guiamuonline.com/quest-mu-online/506-chaos-castle-reloaded"),
-            "Red Dragon": (["12:15", "20:15"], "https://muonlinefanz.com/guide/hunting/red-dragon/"),
-            "Blood Castle": (["12:25", "22:25"], "https://www.guiamuonline.com/quest-mu-online/blood-castle"),
-            "Moss Merchant": (["12:30", "20:30"], "https://guiamuonline.com/npc-sistema/moss"),
-            "Medusa": (["16:30"], "https://www.guiamuonline.com/boss/medusa"),
-            "Golden Invasion": (["16:30"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/golden-invasion"),
-            "Core Magriffi": (["19:15"], "https://www.guiamuonline.com/eventos-mu-online/evento-boss/core-magriffy"),
-            "Loren Deep": (["20:00"], "https://www.guiamuonline.com/eventos-mu-online/loren-deep"),
-            "Kundun": (["22:30"], "https://www.guiamuonline.com/eventos-mu-online/evento-boss/kalima-kundun"),
-            "Viejo pascuero invasion": (["23:59"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/santas-village"),
+            # "Moss Merchant": (["12:30", "20:30"], "https://guiamuonline.com/npc-sistema/moss"),
+            
+            "Devil Square": (["00:20", "00:50", "01:20", "01:50", "02:20", "02:50", "03:20", "03:50", "04:20", "04:50", "05:20", "05:50", "06:20", "06:50", "07:20", "07:50", "08:20", "08:50", "09:20", "09:50", "10:20", "10:50", "11:20", "11:50", "12:20", "12:50", "13:20", "13:50", "14:20", "14:50", "15:20", "15:50", "16:20", "16:50", "17:20", "17:50", "18:20", "18:50", "19:20", "19:50", "20:20", "20:50", "21:20", "21:50", "22:20", "22:50", "23:20", "23:50"], "https://www.guiamuonline.com/quest-mu-online/devil-square"),
+            "Chaos Castle": (["01:00", "03:00", "05:00", "07:00", "09:00", "11:00", "13:00", "15:00", "17:00", "19:00", "21:00", "23:00"], "https://www.guiamuonline.com/quest-mu-online/506-chaos-castle-reloaded"),
+            "Blood Castle": (["00:10", "00:40", "01:10", "01:40", "02:10", "02:40", "03:10", "03:40", "04:10", "04:40", "05:10", "05:40", "06:10", "06:40", "07:10", "07:40", "08:10", "08:40", "09:10", "09:40", "10:10", "10:40", "11:10", "11:40", "12:10", "12:40", "13:10", "13:40", "14:10", "14:40", "15:10", "15:40", "16:10", "16:40", "17:10", "17:40", "18:10", "18:40", "19:10", "19:40", "20:10", "20:40", "21:10", "21:40", "22:10", "22:40", "23:10", "23:40"], "https://www.guiamuonline.com/quest-mu-online/blood-castle"),
+            "Red Dragon": (["23:10"], "https://muonlinefanz.com/guide/hunting/red-dragon/"),
+            "Tigers": (["00:25", "01:25", "02:25", "03:25", "04:25", "05:25", "06:25", "07:25", "08:25", "09:25", "10:25", "11:25", "12:25", "13:25", "14:25", "15:25", "16:25", "17:25", "18:25", "19:25", "20:25", "21:25", "22:25", "23:25"], "#"),
+            "Golden goblins": (["00:10", "01:10", "02:10", "03:10", "04:10", "05:10", "06:10", "07:10", "08:10", "09:10", "10:10", "11:10", "12:10", "13:10", "14:10", "15:10", "16:10", "17:10", "18:10", "19:10", "20:10", "21:10", "22:10", "23:10"], "#"),
+            "Golden Invasion": (["12:00","22:00"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/golden-invasion"),
+            "Ice Queen": (["00:01","04:01","08:01","12:01","16:01","20:01"], "#"),
+            "Balrog": (["00:00" ,"08:00","16:00"], "#"),
+            "Hero Mutant": (["12:00","23:50"], "#"),
         }
         self.roles = {
             "Devil Square": ("👿", 1166848413250355431),
             "Chaos Castle": ("🏰", 1166848360469233724),
-            "Red Dragon": ("🐉", 1166848613587095632),
             "Blood Castle": ("🩸", 1166848668872212571),
-            "Moss Merchant": ("🛒", 1166848707891830824),
-            "Medusa": ("🐍", 1166848761583128766),
+            "Red Dragon": ("🐉", 1166848613587095632),
+            "Tigers": ("🐅", 1166848761583128766),
+            "Golden Goblins": ("👺", 1166848707891830824),
             "Golden Invasion": ("🥇", 1166848796211294398),
-            "Core Magriffi": ("🌐", 1166848819464507522),
-            "Loren Deep": ("🌊", 1166848840821903401),
-            "Kundun": ("👑", 1166848931515338762),
-            "Viejo pascuero invasion": ("🎅", 1166848992282427412)}
+            "Ice Queen": ("🌊", 1166848819464507522),
+            "Balrog": ("👑", 1166848840821903401),
+            "Hero Mutant": ("🤖", 1166848992282427412)}
         self.check_events.start()
 
     def cog_unload(self):
@@ -45,15 +45,23 @@ class Advertisements(commands.Cog):
 
     @tasks.loop(minutes=0.5)
     async def check_events(self):
+        # now es offset-aware (tiene zona horaria)
         now = datetime.now(pytz.timezone('America/Santiago'))
-        print(f"Comprobando eventos a las {now.strftime('%H:%M:%S')}")
+
         for event, (times, url) in self.events.items():
             for time_str in times:
-                # Obtiene la hora y los minutos de time_str
                 hour, minute = map(int, time_str.split(':'))
-                # Establece la hora y los minutos en el objeto datetime actual
-                event_time = now.replace(
-                    hour=hour, minute=minute, second=0, microsecond=0)
+                # Crear event_time también como offset-aware
+                event_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+
+                # Asegurarse de que event_time es para el día correcto
+                if hour == 24 or (hour == 0 and now.hour >= 12):
+                    event_time += timedelta(days=1)
+                elif event_time < now:
+                    event_time += timedelta(days=1)
+
+            # Ahora puedes comparar event_time con now porque ambos son offset-aware
+            if event_time < now:
 
                 # Si event_time es menor que now, entonces el evento ya ocurrió hoy, así que lo ignoramos
                 if event_time < now:
