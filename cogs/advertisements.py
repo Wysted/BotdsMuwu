@@ -20,7 +20,7 @@ class Advertisements(commands.Cog):
             "Blood Castle": (["00:10", "00:40", "01:10", "01:40", "02:10", "02:40", "03:10", "03:40", "04:10", "04:40", "05:10", "05:40", "06:10", "06:40", "07:10", "07:40", "08:10", "08:40", "09:10", "09:40", "10:10", "10:40", "11:10", "11:40", "12:10", "12:40", "13:10", "13:40", "14:10", "14:40", "15:10", "15:40", "16:10", "16:40", "17:10", "17:40", "18:10", "18:40", "19:10", "19:40", "20:10", "20:40", "21:10", "21:40", "22:10", "22:40", "23:10", "23:40"], "https://www.guiamuonline.com/quest-mu-online/blood-castle"),
             "Red Dragon": (["23:10"], "https://muonlinefanz.com/guide/hunting/red-dragon/"),
             "Tigers": (["00:25", "01:25", "02:25", "03:25", "04:25", "05:25", "06:25", "07:25", "08:25", "09:25", "10:25", "11:25", "12:25", "13:25", "14:25", "15:25", "16:25", "17:25", "18:25", "19:25", "20:25", "21:25", "22:25", "23:25"], "#"),
-            "Golden goblins": (["00:10", "01:10", "02:10", "03:10", "04:10", "05:10", "06:10", "07:10", "08:10", "09:10", "10:10", "11:10", "12:10", "13:10", "14:10", "15:10", "16:10", "17:10", "18:10", "19:10", "20:10", "21:10", "22:10", "23:10"], "#"),
+            "Golden Goblins": (["00:10", "01:10", "02:10", "03:10", "04:10", "05:10", "06:10", "07:10", "08:10", "09:10", "10:10", "11:10", "12:10", "13:10", "14:10", "15:10", "16:10", "17:10", "18:10", "19:10", "20:10", "21:10", "22:10", "23:10"], "#"),
             "Golden Invasion": (["12:00","22:00"], "https://www.guiamuonline.com/eventos-mu-online/invasion-monster/golden-invasion"),
             "Ice Queen": (["00:01","04:01","08:01","12:01","16:01","20:01"], "#"),
             "Balrog": (["00:00" ,"08:00","16:00"], "#"),
@@ -41,30 +41,22 @@ class Advertisements(commands.Cog):
 
     def cog_unload(self):
         self.check_events.cancel()
+        self.clear_sent_notifications.cancel()  # Añade esto
 
     @tasks.loop(minutes=0.5)
     async def check_events(self):
-        # now es offset-aware (tiene zona horaria)
         now = datetime.now(pytz.timezone('America/Santiago'))
-
+        print(f"Comprobando eventos a las {now.strftime('%H:%M:%S')}")
         for event, (times, url) in self.events.items():
             for time_str in times:
+                # Obtiene la hora y los minutos de time_str
                 hour, minute = map(int, time_str.split(':'))
-                # Crear event_time también como offset-aware
-                event_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-
-                # Asegurarse de que event_time es para el día correcto
-                if hour == 24 or (hour == 0 and now.hour >= 12):
-                    event_time += timedelta(days=1)
-                elif event_time < now:
-                    event_time += timedelta(days=1)
+                # Establece la hora y los minutos en el objeto datetime actual
+                event_time = now.replace(
+                    hour=hour, minute=minute, second=0, microsecond=0)
 
                 # Si event_time es menor que now, entonces el evento ya ocurrió hoy, así que lo ignoramos
                 if event_time < now:
-                    event_time += timedelta(days=1)
-
-            # Ahora puedes comparar event_time con now porque ambos son offset-aware
-                # Si event_time es menor que now, entonces el evento ya ocurrió hoy, así que lo ignoramos
                     print(
                         f"El evento {event} programado para las {event_time.strftime('%H:%M:%S')} ya ocurrió hoy.")
                     continue
@@ -101,10 +93,11 @@ class Advertisements(commands.Cog):
                                 f"Enviando aviso del evento {event} con mención al rol {role.name}")
                             embed = discord.Embed(
                                 title=f"Evento: {event}",
-                                description=f"El evento {event} comenzará en 10 minutos! Más info [aquí]({url}). {role.mention}",
+                                description=f"El evento {event} comenzará en 10 minutos! Más info [aquí]({url}).",
                                 color=discord.Color.blue()
                             )
-                            await channel.send(embed=embed)
+                            msj_mention= f"{role.mention}"
+                            await channel.send(msj_mention,embed=embed)
                         else:
                             print(f"Rol con ID {role_id} no encontrado")
                     else:
@@ -116,13 +109,11 @@ class Advertisements(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("Bot is ready. Starting scheduled tasks.")
-        self.check_events.start()
-        self.clear_sent_notifications.start()
+        if not self.check_events.is_running():
+            self.check_events.start()
+        if not self.clear_sent_notifications.is_running():  # Añade esto
+            self.clear_sent_notifications.start()
 
 async def setup(bot) -> None:
     await bot.add_cog(Advertisements(bot))
 
-
-async def setup(bot) -> None:
-    await bot.add_cog(Advertisements(bot))
