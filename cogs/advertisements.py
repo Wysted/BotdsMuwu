@@ -3,6 +3,8 @@ import discord
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta
 import pytz
+from playwright.async_api import async_playwright
+
 
 
 class Advertisements(commands.Cog):
@@ -46,7 +48,7 @@ class Advertisements(commands.Cog):
     @tasks.loop(minutes=0.5)
     async def check_events(self):
         now = datetime.now(pytz.timezone('America/Santiago'))
-        print(f"Comprobando eventos a las {now.strftime('%H:%M:%S')}")
+        # print(f"Comprobando eventos a las {now.strftime('%H:%M:%S')}")
         for event, (times, url) in self.events.items():
             for time_str in times:
                 # Obtiene la hora y los minutos de time_str
@@ -57,30 +59,30 @@ class Advertisements(commands.Cog):
 
                 # Si event_time es menor que now, entonces el evento ya ocurrió hoy, así que lo ignoramos
                 if event_time < now:
-                    print(
-                        f"El evento {event} programado para las {event_time.strftime('%H:%M:%S')} ya ocurrió hoy.")
+                    # print(
+                    #     f"El evento {event} programado para las {event_time.strftime('%H:%M:%S')} ya ocurrió hoy.")
                     continue
 
-                print(
-                    f"Verificando el evento {event} programado para las {event_time.strftime('%H:%M:%S')}")
-                print(f"Diferencia de tiempo para {event}: {event_time - now}")
+                # print(
+                #     f"Verificando el evento {event} programado para las {event_time.strftime('%H:%M:%S')}")
+                # print(f"Diferencia de tiempo para {event}: {event_time - now}")
 
                 now_rounded = now.replace(second=0, microsecond=0)
                 event_time_rounded = event_time.replace(
                     second=0, microsecond=0)
 
-                print(f"Tiempo actual redondeado: {now_rounded}")
-                print(f"Tiempo del evento redondeado: {event_time_rounded}")
-                print(
-                    f"Condición 1: {now_rounded > event_time_rounded - timedelta(minutes=10)}")
-                print(
-                    f"Condición 2: {now_rounded < event_time_rounded - timedelta(minutes=9)}")
+                # print(f"Tiempo actual redondeado: {now_rounded}")
+                # print(f"Tiempo del evento redondeado: {event_time_rounded}")
+                # print(
+                #     f"Condición 1: {now_rounded > event_time_rounded - timedelta(minutes=10)}")
+                # print(
+                #     f"Condición 2: {now_rounded < event_time_rounded - timedelta(minutes=9)}")
                 event_key = f"{event}_{event_time_rounded.strftime('%Y-%m-%d %H:%M')}"
                 if event_key in self.sent_notifications:
                     continue  # Si ya se ha enviado una notificación para este evento, salta al siguiente
 
                 if now_rounded > event_time_rounded - timedelta(minutes=10) and now_rounded < event_time_rounded:
-                    print(f"Preparando para enviar aviso del evento {event}")
+                    # print(f"Preparando para enviar aviso del evento {event}")
                     self.sent_notifications.add(event_key)
                     channel = self.bot.get_channel(self.channel_id)
                     if channel:  # Verifica si el canal es válido
@@ -89,8 +91,8 @@ class Advertisements(commands.Cog):
                         # Obtén el objeto Role usando get_role
                         role = channel.guild.get_role(role_id)
                         if role:  # Verifica si el rol es válido
-                            print(
-                                f"Enviando aviso del evento {event} con mención al rol {role.name}")
+                            # print(
+                            #     f"Enviando aviso del evento {event} con mención al rol {role.name}")
                             embed = discord.Embed(
                                 title=f"Evento: {event}",
                                 description=f"El evento {event} comenzará en 10 minutos! Más info [aquí]({url}).",
@@ -102,15 +104,84 @@ class Advertisements(commands.Cog):
                             print(f"Rol con ID {role_id} no encontrado")
                     else:
                         print(f"Canal con ID {self.channel_id} no encontrado")
+    
+
+    @tasks.loop(minutes=1)
+    async def check_lvls(self):
+        file_path = 'database/lvls.txt'
+        async with async_playwright() as p:
+            browser = await p.chromium.launch()
+            page = await browser.new_page()
+            await page.goto("https://muwu.cl/guild/54756c6f6e6573/DEFAULT")
+            print("Página cargada.")
+
+            tabla = page.locator("table.table.dmn-rankings-table").nth(1)
+            filas = await tabla.locator("tbody tr").element_handles()
+            print(f"Se encontraron {len(filas)} filas en la tabla.")
+
+            resultados_actuales = {}
+
+            for fila in filas:
+                nombre_element = await fila.query_selector("td:nth-child(2) a")
+                nombre = await nombre_element.text_content() if nombre_element else "Nombre no encontrado"
+                nivel_element = await fila.query_selector("td:nth-child(5)")
+                nivel = await nivel_element.inner_text() if nivel_element else "NvL no encontrado"
+                nivel = nivel.split()[0]
+
+                resultados_actuales[nombre.strip()] = nivel.strip()
+                print(f"Agregado: {nombre.strip()}, NvL: {nivel.strip()}")
+
+            await browser.close()
+
+        jugadores_actuales = {nombre: {'nivel': nivel, 'notificado': 'no'} for nombre, nivel in resultados_actuales.items()}
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                lineas = file.readlines()
+
+            lineas_actualizadas = []
+
+            for linea in lineas:
+                partes = linea.strip().split(', ')
+                if len(partes) >= 4:
+                    nombre, nivel, notificado, usuario_id = partes[0], partes[1], partes[2], partes[3]
+                    nombre = nombre.split(": ")[1]
+                    if nombre in jugadores_actuales:
+                        jugadores_actuales[nombre]['notificado'] = notificado.split(": ")[1]
+                        jugadores_actuales[nombre]['usuario_id'] = usuario_id.strip("()")
+
+            for nombre, info in jugadores_actuales.items():
+                nivel = info['nivel']
+                notificado = info.get('notificado', 'no')
+                usuario_id = info.get('usuario_id', '')
+
+                if nivel == '400' and notificado == 'no' and usuario_id:
+                    usuario = self.bot.get_user(int(usuario_id))
+                    if usuario:
+                        await usuario.send(f"Felicidades {nombre}, ¡has alcanzado el nivel 400! Es hora de hacer tu reset.")
+                        print(f"Mensaje enviado a {nombre} con ID de usuario {usuario_id}.")
+                        notificado = 'si'  # Actualizar el estado a notificado
+
+                lineas_actualizadas.append(f"Nombre: {nombre}, NvL: {nivel}, Notificado: {notificado}, ({usuario_id})\n")
+
+            with open(file_path, 'w', encoding='utf-8') as file:
+                file.writelines(lineas_actualizadas)
+
+        except FileNotFoundError:
+            print(f"El archivo {file_path} no fue encontrado.")
+        except Exception as e:
+            print(f"Ocurrió un error al leer o escribir en el archivo: {str(e)}")
+
 
     @tasks.loop(hours=24)
     async def clear_sent_notifications(self):
         self.sent_notifications.clear()
-
     @commands.Cog.listener()
     async def on_ready(self):
         if not self.check_events.is_running():
             self.check_events.start()
+        if not self.check_lvls.is_running():
+            self.check_lvls.start()
         if not self.clear_sent_notifications.is_running():  # Añade esto
             self.clear_sent_notifications.start()
 

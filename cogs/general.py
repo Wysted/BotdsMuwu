@@ -319,6 +319,49 @@ class General(commands.Cog, name="general"):
         embed.set_footer(text=f"Hora servidor : {hora_formateada}")
         await context.send(embed=embed)
 
+    @commands.hybrid_command(name="register", description="Register your user for level tracking.")
+    @app_commands.describe()
+    async def register(self, ctx, game_name: str) -> None:
+        """
+        Register the user's game name with their Discord ID.
+
+        :param ctx: The context of where the message was sent.
+        :param game_name: The in-game name of the user.
+        """
+        user_id = ctx.author.id
+        file_path = 'database/lvls.txt'
+        updated = False
+
+        # Leer todo el archivo
+        with open(file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        # Reescribir el archivo actualizando o añadiendo la línea necesaria
+        with open(file_path, 'w', encoding='utf-8') as file:
+            for line in lines:
+                if line.startswith(f"Nombre: {game_name}"):
+                    # Extraer el nivel actual del personaje
+                    partes = line.split(',')
+                    nivel_actual = partes[1].split(':')[1].strip()
+
+                    # Actualizar la línea existente manteniendo el nivel actual
+                    file.write(f"Nombre: {game_name}, NvL: {nivel_actual}, Notificado: no, ({user_id})\n")
+                    updated = True
+                else:
+                    file.write(line)
+
+            # Si el usuario no se encontró en el archivo, añadirlo al final con nivel 0
+            if not updated:
+                file.write(f"Nombre: {game_name}, NvL: 0, Notificado: no, ({user_id})\n")
+
+        # Enviar un mensaje de confirmación
+        if updated:
+            await ctx.reply("Your registration has been updated with the new Discord ID.")
+        else:
+            await ctx.reply("You have been registered successfully with your Discord ID.")
+
+
+
 
 async def setup(bot) -> None:
     await bot.add_cog(General(bot))
