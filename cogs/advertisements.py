@@ -160,7 +160,10 @@ class Advertisements(commands.Cog):
                     if usuario:
                         await usuario.send(f"Felicidades {nombre}, ¡has alcanzado el nivel 400! Es hora de hacer tu reset.")
                         print(f"Mensaje enviado a {nombre} con ID de usuario {usuario_id}.")
-                        notificado = 'si'  # Actualizar el estado a notificado
+                        notificado = 'si'
+
+                elif int(nivel) < 400 and notificado == 'si':
+                    notificado = 'no'
 
                 lineas_actualizadas.append(f"Nombre: {nombre}, NvL: {nivel}, Notificado: {notificado}, ({usuario_id})\n")
 
